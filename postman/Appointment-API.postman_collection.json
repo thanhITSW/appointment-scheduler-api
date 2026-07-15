@@ -1,0 +1,134 @@
+{
+  "info": {
+    "name": "Appointment Scheduler API",
+    "description": "Public booking + staff auth sample requests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "appointmentId", "value": "1" },
+    { "key": "customerId", "value": "1" },
+    { "key": "vehicleId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  const token = body.jwtTokenDto && body.jwtTokenDto.token;",
+                  "  if (token) { pm.collectionVariables.set('accessToken', token); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": \"admin01\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/public/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Master data (public)",
+      "item": [
+        {
+          "name": "List service types",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/public/service-types"
+          }
+        },
+        {
+          "name": "List dealerships",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/public/dealerships"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments (public)",
+      "item": [
+        {
+          "name": "Check availability",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dealershipId\": 1,\n  \"serviceTypeId\": 1,\n  \"appointmentDate\": \"2026-07-25\",\n  \"startTime\": \"10:00:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/public/appointments/check-availability"
+          }
+        },
+        {
+          "name": "Create appointment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": {{customerId}},\n  \"vehicleId\": {{vehicleId}},\n  \"serviceTypeId\": 1,\n  \"dealershipId\": 1,\n  \"appointmentDate\": \"2026-07-25\",\n  \"startTime\": \"10:00:00\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/public/appointments"
+          }
+        },
+        {
+          "name": "Get appointment",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/public/appointments/{{appointmentId}}"
+          }
+        },
+        {
+          "name": "Search appointments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/appointments?customerId={{customerId}}&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "public", "appointments"],
+              "query": [
+                { "key": "customerId", "value": "{{customerId}}" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments (private)",
+      "item": [
+        {
+          "name": "List appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/v1/private/appointments?page=0&size=20"
+          }
+        }
+      ]
+    }
+  ]
+}
