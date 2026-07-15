@@ -12,13 +12,13 @@ Replace manual dealership appointment booking with a reliable API that checks re
 |---------|-------------|
 | Appointment Booking | Create appointments with customer, vehicle, service type, and dealership |
 | Availability Checking | Preview whether a time slot can be fulfilled before booking |
-| Resource Allocation | Automatically assign a skilled technician and a free service bay |
+| Resource Allocation | Automatically assign a skilled technician and a free service bay **at the requested dealership** |
 | Staff Management | JWT-secured APIs for advisors, managers, and admins |
-| Status Lifecycle | PENDING → CONFIRMED → COMPLETED / CANCELLED; reschedule supported |
+| Status Lifecycle | Successful booking → `CONFIRMED` → `COMPLETED` / `CANCELLED`; optional `PENDING` retained for legacy transitions |
 
 ### Scope
 
-This repository is the **backend API** (`appointment-api`). Clients (web/mobile) consume REST endpoints. Persistence is **MySQL** with schema/seed managed by **Liquibase**.
+This repository is the **backend service layer** for **Scenario A: The Unified Service Scheduler** (`appointment-scheduler-api`). Clients (web/mobile) consume REST endpoints. Persistence is **MySQL** with schema/seed managed by **Liquibase**. A companion React SPA lives in `appointment-scheduler-ui`.
 
 ---
 
@@ -26,10 +26,10 @@ This repository is the **backend API** (`appointment-api`). Clients (web/mobile)
 
 | ID | Requirement | How it is met |
 |----|-------------|----------------|
-| **FR-1** | Book appointment | `POST /api/v1/public/appointments` validates input, allocates resources, persists appointment as `PENDING` |
-| **FR-2** | Check technician availability | Availability and booking paths filter `AVAILABLE` technicians, match required skills, and reject time overlaps |
-| **FR-3** | Check service bay availability | Same date/time window must not overlap existing `PENDING`/`CONFIRMED` bay bookings |
-| **FR-4** | Create confirmed / trackable appointment | Booking creates a durable appointment record; staff can confirm, complete, cancel, or reschedule via private APIs |
+| **FR-1** | Book appointment | `POST /api/v1/public/appointments` validates input, allocates dealership-scoped resources, persists appointment as `CONFIRMED` |
+| **FR-2** | Check technician availability | Filters `AVAILABLE` technicians **at the dealership**, match required skills, reject time overlaps |
+| **FR-3** | Check service bay availability | Same date/time window must not overlap existing `PENDING`/`CONFIRMED` bay bookings **at that dealership** |
+| **FR-4** | Create confirmed appointment | Booking creates a durable `CONFIRMED` appointment associating customer, vehicle, technician, and service bay |
 | **FR-5** | Customer & vehicle registry | Public create/list customers and vehicles for booking prerequisites |
 | **FR-6** | Master data | Dealerships, service types, skills, technicians, bays — seed + staff CRUD |
 | **FR-7** | Authentication & authorization | Login by `employeeId` + password; JWT + role-based access (`ADMIN`, `MANAGER`, `ADVISOR`, `TECHNICIAN`) |
@@ -42,7 +42,7 @@ This repository is the **backend API** (`appointment-api`). Clients (web/mobile)
 |------|--------|---------------|
 | **Consistency** | No double booking | `@Transactional` + `PESSIMISTIC_WRITE` locks on technician/bay rows during allocate + insert |
 | **Performance** | Availability ideally &lt; 500ms | Indexed FK lookups, skill graphs loaded once per request, read-only transaction for check-availability |
-| **Scalability** | Multiple dealerships | `dealerships` table; appointments reference dealership; further sharding is a future step |
+| **Scalability** | Multiple dealerships | Technicians and service bays belong to a dealership; booking only locks/allocates that site’s pool |
 | **Security** | Authenticated staff APIs | Spring Security + JWT; public booking endpoints remain open for kiosk/web booking UX |
 | **Maintainability** | Clear layering | Controllers → Services → Repositories; Liquibase for schema; MapStruct for DTOs |
 | **Auditability** | Who/when changed | `AbstractAuditingEntity` (`created_by`, `created_date`, …) |
@@ -100,14 +100,17 @@ OpenAPI UI: `/swagger`.
     ▼          ▼          ▼          ▼
 ┌────────┐ ┌────────┐ ┌──────────┐ ┌─────────────┐
 │Techni- │ │Service │ │Dealership│ │ServiceType  │
-│cian    │ │Bay     │ └──────────┘ └──────┬──────┘
-└───┬────┘ └────────┘                     │
-    │ M:N                                 │ M:N
-    ▼                                     ▼
-┌────────┐                         ┌────────────┐
-│ Skill  │◄──── technician_skills  │service_type│
-└────────┘     service_type_skills └────────────┘
-```
+│cian    │ │Bay     │ └────▲─────┘ └──────┬──────┘
+└───┬────┘ └────┬───┘      │              │
+    │ M:N       │          │ N:1          │ M:N
+    │           └──────────┘              ▼
+    ▼                               ┌────────────┐
+┌────────┐                          │service_type│
+│ Skill  │◄──── technician_skills   │   skills   │
+└────────┘                          └────────────┘
+
+Technicians and service bays each belong to one dealership (`dealership_id`).
+Allocation never crosses dealership boundaries.```
 
 **Staff / auth (orthogonal)**
 
@@ -173,9 +176,9 @@ Primary entities (see [docs/DATABASE.md](docs/DATABASE.md) for columns):
 | `customers` | End customers |
 | `vehicles` | Customer vehicles (VIN, plate, make/model/year) |
 | `appointments` | Booking core |
-| `technicians` | Workforce + status |
+| `technicians` | Workforce + status + **dealership** |
 | `technician_skills` | M:N technician ↔ skill |
-| `service_bays` | Physical bays + status |
+| `service_bays` | Physical bays + status + **dealership** |
 | `service_types` | Service catalog + duration |
 | `service_type_skills` | Required skills per service |
 | `skills` | Skill catalog |
@@ -195,19 +198,19 @@ Create Appointment
  Validate (past time? customer? vehicle ownership? entities exist?)
         │
         ▼
- Lock AVAILABLE technicians (PESSIMISTIC_WRITE)
+ Lock AVAILABLE technicians at dealership (PESSIMISTIC_WRITE)
         │
         ▼
  Find first technician with required skills + no time overlap
         │
         ▼
- Lock AVAILABLE service bays (PESSIMISTIC_WRITE)
+ Lock AVAILABLE service bays at dealership (PESSIMISTIC_WRITE)
         │
         ▼
  Find first bay with no time overlap
         │
         ▼
- Persist Appointment (status = PENDING)
+ Persist Appointment (status = CONFIRMED)
         │
         ▼
  Return AppointmentResponseDto
@@ -215,7 +218,7 @@ Create Appointment
 
 `checkAvailability` follows the same selection rules **without** locks and **without** insert — useful for UX but not a reservation.
 
-Initial status is **PENDING** (staff may set CONFIRMED). Challenge wording “confirmed appointment” is interpreted as a durable, non-overlapping booking record; confirmation is an explicit status step for advisors/managers.
+Successful booking creates a **CONFIRMED** appointment record (customer + vehicle + technician + service bay), matching the challenge “confirmed appointment” wording. Staff may still move `CONFIRMED` → `COMPLETED` / `CANCELLED`, or use `PENDING` only if present from older data / transitions.
 
 ---
 
@@ -228,7 +231,7 @@ Two clients book the same technician (or bay) for overlapping times.
 ### Solution
 
 1. Wrap create/reschedule in `@Transactional`
-2. Load candidates with `@Lock(LockModeType.PESSIMISTIC_WRITE)` → SQL `SELECT … FOR UPDATE`
+2. Load **dealership-scoped** candidates with `@Lock(LockModeType.PESSIMISTIC_WRITE)` → SQL `SELECT … FOR UPDATE`
 3. Re-check overlap against `PENDING`/`CONFIRMED` appointments
 4. Insert only if still free; otherwise throw conflict (`ERR_NO_AVAILABLE_TECHNICIAN` / `ERR_NO_AVAILABLE_SERVICE_BAY`)
 
@@ -262,10 +265,8 @@ User A & User B book same slot
 | Waiting list | Queue when no capacity; auto-offer cancellations |
 | Recurring appointments | Fleet / corporate service plans |
 | Calendar integration | ICS / Google Calendar for advisors |
-| Per-dealership capacity | Constrain tech/bay pools by dealership |
 | Soft hold / TTL reservation | Bridge gap between check-availability and book |
 | Observability | Metrics on conflict rate and booking latency |
-| Frontend app | React SPA consuming this API |
 
 ---
 

@@ -18,6 +18,8 @@ public class TechnicianResponseDto {
     private String name;
     private String employeeCode;
     private TechnicianStatus status;
+    private Long dealershipId;
+    private String dealershipName;
     private List<Long> skillIds;
     private List<String> skillCodes;
 }

@@ -24,6 +24,8 @@ public interface MasterDataMapper {
 
     SkillResponseDto toSkillResponseDto(Skill skill);
 
+    @Mapping(target = "dealershipId", source = "dealership.id")
+    @Mapping(target = "dealershipName", source = "dealership.name")
     ServiceBayResponseDto toServiceBayResponseDto(ServiceBay serviceBay);
 
     DealershipResponseDto toDealershipResponseDto(Dealership dealership);
@@ -32,6 +34,8 @@ public interface MasterDataMapper {
     @Mapping(target = "requiredSkillCodes", expression = "java(toSkillCodes(serviceType.getRequiredSkills()))")
     ServiceTypeResponseDto toServiceTypeResponseDto(ServiceType serviceType);
 
+    @Mapping(target = "dealershipId", source = "dealership.id")
+    @Mapping(target = "dealershipName", source = "dealership.name")
     @Mapping(target = "skillIds", expression = "java(toSkillIds(technician.getSkills()))")
     @Mapping(target = "skillCodes", expression = "java(toSkillCodes(technician.getSkills()))")
     TechnicianResponseDto toTechnicianResponseDto(Technician technician);

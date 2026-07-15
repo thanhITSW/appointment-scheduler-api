@@ -1,9 +1,11 @@
 package com.appointment.service.impl;
 
+import com.appointment.entity.Dealership;
 import com.appointment.entity.Skill;
 import com.appointment.entity.Technician;
 import com.appointment.exception.DataConflictException;
 import com.appointment.exception.DataNotfoundException;
+import com.appointment.repository.DealershipRepository;
 import com.appointment.repository.SkillRepository;
 import com.appointment.repository.TechnicianRepository;
 import com.appointment.service.TechnicianService;
@@ -21,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.appointment.constant.ErrorCodeConstant.ERR_DEALERSHIP_NOT_FOUND;
 import static com.appointment.constant.ErrorCodeConstant.ERR_SKILL_NOT_FOUND;
 import static com.appointment.constant.ErrorCodeConstant.ERR_TECHNICIAN_EMPLOYEE_CODE_DUPLICATED;
 import static com.appointment.constant.ErrorCodeConstant.ERR_TECHNICIAN_NOT_FOUND;
@@ -32,6 +35,7 @@ import static com.appointment.constant.ErrorCodeConstant.ERR_TECHNICIAN_NOT_FOUN
 public class TechnicianServiceImpl implements TechnicianService {
 
     private final TechnicianRepository technicianRepository;
+    private final DealershipRepository dealershipRepository;
     private final SkillRepository skillRepository;
     private final MasterDataMapper masterDataMapper;
 
@@ -59,6 +63,7 @@ public class TechnicianServiceImpl implements TechnicianService {
                 .name(request.getName().trim())
                 .employeeCode(request.getEmployeeCode().trim())
                 .status(request.getStatus())
+                .dealership(requireDealership(request.getDealershipId()))
                 .skills(resolveSkills(request.getSkillIds()))
                 .build();
         return masterDataMapper.toTechnicianResponseDto(technicianRepository.save(technician));
@@ -75,6 +80,7 @@ public class TechnicianServiceImpl implements TechnicianService {
         technician.setName(request.getName().trim());
         technician.setEmployeeCode(request.getEmployeeCode().trim());
         technician.setStatus(request.getStatus());
+        technician.setDealership(requireDealership(request.getDealershipId()));
         return masterDataMapper.toTechnicianResponseDto(technicianRepository.save(technician));
     }
 
@@ -85,6 +91,11 @@ public class TechnicianServiceImpl implements TechnicianService {
                 .orElseThrow(() -> new DataNotfoundException(ERR_TECHNICIAN_NOT_FOUND));
         technician.setSkills(resolveSkills(request.getSkillIds()));
         return masterDataMapper.toTechnicianResponseDto(technicianRepository.save(technician));
+    }
+
+    private Dealership requireDealership(Long dealershipId) {
+        return dealershipRepository.findById(dealershipId)
+                .orElseThrow(() -> new DataNotfoundException(ERR_DEALERSHIP_NOT_FOUND));
     }
 
     private Set<Skill> resolveSkills(List<Long> skillIds) {

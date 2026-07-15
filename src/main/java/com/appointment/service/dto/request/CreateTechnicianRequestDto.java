@@ -25,5 +25,8 @@ public class CreateTechnicianRequestDto {
     @NotNull
     private TechnicianStatus status;
 
+    @NotNull
+    private Long dealershipId;
+
     private List<Long> skillIds;
 }

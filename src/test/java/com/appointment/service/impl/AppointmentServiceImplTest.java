@@ -122,6 +122,7 @@ class AppointmentServiceImplTest {
                 .name("Alex Rivera")
                 .employeeCode("TECH-001")
                 .status(TechnicianStatus.AVAILABLE)
+                .dealership(dealership)
                 .skills(new HashSet<>())
                 .build();
 
@@ -129,6 +130,7 @@ class AppointmentServiceImplTest {
                 .id(1L)
                 .name("Bay 1")
                 .status(ServiceBayStatus.AVAILABLE)
+                .dealership(dealership)
                 .build();
 
         customer = Customer.builder()
@@ -162,9 +164,9 @@ class AppointmentServiceImplTest {
 
         when(serviceTypeRepository.findWithSkillsById(1L)).thenReturn(Optional.of(serviceType));
         when(dealershipRepository.findById(1L)).thenReturn(Optional.of(dealership));
-        when(technicianRepository.findByStatusOrderByIdAsc(TechnicianStatus.AVAILABLE))
+        when(technicianRepository.findByStatusAndDealershipIdOrderByIdAsc(TechnicianStatus.AVAILABLE, 1L))
                 .thenReturn(List.of(technician));
-        when(serviceBayRepository.findByStatusOrderByIdAsc(ServiceBayStatus.AVAILABLE))
+        when(serviceBayRepository.findByStatusAndDealershipIdOrderByIdAsc(ServiceBayStatus.AVAILABLE, 1L))
                 .thenReturn(List.of(serviceBay));
         when(appointmentRepository
                 .existsByTechnicianIdAndAppointmentDateAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
@@ -196,7 +198,7 @@ class AppointmentServiceImplTest {
 
         when(serviceTypeRepository.findWithSkillsById(1L)).thenReturn(Optional.of(serviceType));
         when(dealershipRepository.findById(1L)).thenReturn(Optional.of(dealership));
-        when(technicianRepository.findByStatusOrderByIdAsc(TechnicianStatus.AVAILABLE))
+        when(technicianRepository.findByStatusAndDealershipIdOrderByIdAsc(TechnicianStatus.AVAILABLE, 1L))
                 .thenReturn(Collections.emptyList());
 
         AvailabilityResponseDto result = appointmentService.checkAvailability(request);
@@ -231,20 +233,20 @@ class AppointmentServiceImplTest {
                 .appointmentDate(futureDate)
                 .startTime(startTime)
                 .endTime(LocalTime.of(10, 30))
-                .status(AppointmentStatus.PENDING)
+                .status(AppointmentStatus.CONFIRMED)
                 .build();
 
         AppointmentResponseDto responseDto = AppointmentResponseDto.builder()
                 .id(100L)
-                .status(AppointmentStatus.PENDING)
+                .status(AppointmentStatus.CONFIRMED)
                 .build();
 
         when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));
         when(vehicleRepository.findById(20L)).thenReturn(Optional.of(vehicle));
         when(serviceTypeRepository.findWithSkillsById(1L)).thenReturn(Optional.of(serviceType));
         when(dealershipRepository.findById(1L)).thenReturn(Optional.of(dealership));
-        when(technicianRepository.findAvailableForUpdate()).thenReturn(List.of(technician));
-        when(serviceBayRepository.findAvailableForUpdate()).thenReturn(List.of(serviceBay));
+        when(technicianRepository.findAvailableForUpdate(1L)).thenReturn(List.of(technician));
+        when(serviceBayRepository.findAvailableForUpdate(1L)).thenReturn(List.of(serviceBay));
         when(appointmentRepository
                 .existsByTechnicianIdAndAppointmentDateAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
                         eq(1L), eq(futureDate), eq(BLOCKING_STATUSES), eq(LocalTime.of(10, 30)), eq(startTime)))
@@ -259,9 +261,9 @@ class AppointmentServiceImplTest {
         AppointmentResponseDto result = appointmentService.createAppointment(request);
 
         assertThat(result.getId()).isEqualTo(100L);
-        assertThat(result.getStatus()).isEqualTo(AppointmentStatus.PENDING);
-        verify(technicianRepository).findAvailableForUpdate();
-        verify(serviceBayRepository).findAvailableForUpdate();
+        assertThat(result.getStatus()).isEqualTo(AppointmentStatus.CONFIRMED);
+        verify(technicianRepository).findAvailableForUpdate(1L);
+        verify(serviceBayRepository).findAvailableForUpdate(1L);
         verify(appointmentRepository).save(any(Appointment.class));
     }
 
@@ -413,7 +415,7 @@ class AppointmentServiceImplTest {
         when(vehicleRepository.findById(20L)).thenReturn(Optional.of(vehicle));
         when(serviceTypeRepository.findWithSkillsById(1L)).thenReturn(Optional.of(serviceType));
         when(dealershipRepository.findById(1L)).thenReturn(Optional.of(dealership));
-        when(technicianRepository.findAvailableForUpdate()).thenReturn(List.of(technician));
+        when(technicianRepository.findAvailableForUpdate(1L)).thenReturn(List.of(technician));
 
         assertThatThrownBy(() -> appointmentService.createAppointment(request))
                 .isInstanceOf(DataConflictException.class)

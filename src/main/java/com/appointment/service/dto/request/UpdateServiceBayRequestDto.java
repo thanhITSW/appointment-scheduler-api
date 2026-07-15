@@ -19,4 +19,7 @@ public class UpdateServiceBayRequestDto {
 
     @NotNull
     private ServiceBayStatus status;
+
+    @NotNull
+    private Long dealershipId;
 }

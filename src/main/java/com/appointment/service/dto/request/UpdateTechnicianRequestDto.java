@@ -22,4 +22,7 @@ public class UpdateTechnicianRequestDto {
 
     @NotNull
     private TechnicianStatus status;
+
+    @NotNull
+    private Long dealershipId;
 }

@@ -88,9 +88,11 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new DataNotfoundException(ERR_DEALERSHIP_NOT_FOUND));
 
         LocalTime endTime = request.getStartTime().plusMinutes(serviceType.getDurationMinutes());
+        Long dealershipId = request.getDealershipId();
 
         Technician technician = findFirstFreeTechnician(
-                technicianRepository.findByStatusOrderByIdAsc(TechnicianStatus.AVAILABLE),
+                technicianRepository.findByStatusAndDealershipIdOrderByIdAsc(
+                        TechnicianStatus.AVAILABLE, dealershipId),
                 serviceType.getRequiredSkills(),
                 request.getAppointmentDate(),
                 request.getStartTime(),
@@ -106,7 +108,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         ServiceBay serviceBay = findFirstFreeServiceBay(
-                serviceBayRepository.findByStatusOrderByIdAsc(ServiceBayStatus.AVAILABLE),
+                serviceBayRepository.findByStatusAndDealershipIdOrderByIdAsc(
+                        ServiceBayStatus.AVAILABLE, dealershipId),
                 request.getAppointmentDate(),
                 request.getStartTime(),
                 endTime,
@@ -153,8 +156,9 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new DataNotfoundException(ERR_DEALERSHIP_NOT_FOUND));
 
         LocalTime endTime = request.getStartTime().plusMinutes(serviceType.getDurationMinutes());
+        Long dealershipId = dealership.getId();
 
-        List<Technician> technicians = technicianRepository.findAvailableForUpdate();
+        List<Technician> technicians = technicianRepository.findAvailableForUpdate(dealershipId);
         // Initialize skills inside lock transaction
         technicians.forEach(t -> t.getSkills().size());
 
@@ -165,7 +169,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new DataConflictException(ERR_NO_AVAILABLE_TECHNICIAN);
         }
 
-        List<ServiceBay> serviceBays = serviceBayRepository.findAvailableForUpdate();
+        List<ServiceBay> serviceBays = serviceBayRepository.findAvailableForUpdate(dealershipId);
         ServiceBay serviceBay = findFirstFreeServiceBay(
                 serviceBays, request.getAppointmentDate(), request.getStartTime(), endTime, null);
         if (serviceBay == null) {
@@ -182,7 +186,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .appointmentDate(request.getAppointmentDate())
                 .startTime(request.getStartTime())
                 .endTime(endTime)
-                .status(AppointmentStatus.PENDING)
+                .status(AppointmentStatus.CONFIRMED)
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
@@ -228,8 +232,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         ServiceType serviceType = serviceTypeRepository.findWithSkillsById(appointment.getServiceType().getId())
                 .orElseThrow(() -> new DataNotfoundException(ERR_SERVICE_TYPE_NOT_FOUND));
         LocalTime endTime = request.getStartTime().plusMinutes(serviceType.getDurationMinutes());
+        Long dealershipId = appointment.getDealership().getId();
 
-        List<Technician> technicians = technicianRepository.findAvailableForUpdate();
+        List<Technician> technicians = technicianRepository.findAvailableForUpdate(dealershipId);
         technicians.forEach(t -> t.getSkills().size());
         Technician technician = findFirstFreeTechnician(
                 technicians, serviceType.getRequiredSkills(),
@@ -238,7 +243,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new DataConflictException(ERR_NO_AVAILABLE_TECHNICIAN);
         }
 
-        List<ServiceBay> serviceBays = serviceBayRepository.findAvailableForUpdate();
+        List<ServiceBay> serviceBays = serviceBayRepository.findAvailableForUpdate(dealershipId);
         ServiceBay serviceBay = findFirstFreeServiceBay(
                 serviceBays, request.getAppointmentDate(), request.getStartTime(), endTime, id);
         if (serviceBay == null) {

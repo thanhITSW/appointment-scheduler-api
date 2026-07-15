@@ -15,4 +15,6 @@ public class ServiceBayResponseDto {
     private Long id;
     private String name;
     private ServiceBayStatus status;
+    private Long dealershipId;
+    private String dealershipName;
 }

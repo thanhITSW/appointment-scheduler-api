@@ -20,6 +20,8 @@ appointments *───1 technicians
 appointments *───1 service_bays
 appointments *───1 dealerships
 appointments *───1 service_types
+technicians *───1 dealerships
+service_bays *───1 dealerships
 technicians *───* skills          (technician_skills)
 service_types *───* skills        (service_type_skills)
 ```
@@ -64,7 +66,7 @@ Staff auth tables (`user`, `login_session`, `refresh_token` / password history) 
 | service_type_id | FK | |
 | appointment_date | DATE | |
 | start_time, end_time | TIME | end = start + service duration |
-| status | VARCHAR/ENUM | PENDING, CONFIRMED, COMPLETED, CANCELLED |
+| status | VARCHAR/ENUM | PENDING, CONFIRMED, COMPLETED, CANCELLED — **create** writes `CONFIRMED` |
 
 Overlap rules treat `PENDING` and `CONFIRMED` as blocking.
 
@@ -74,6 +76,7 @@ Overlap rules treat `PENDING` and `CONFIRMED` as blocking.
 |--------|-------|
 | id, name, employee_code | |
 | status | AVAILABLE, OFF, BUSY |
+| dealership_id | FK → dealerships (required) |
 
 ### service_bays
 
@@ -81,6 +84,7 @@ Overlap rules treat `PENDING` and `CONFIRMED` as blocking.
 |--------|-------|
 | id, name | |
 | status | AVAILABLE, OFF, BUSY |
+| dealership_id | FK → dealerships (required) |
 
 ### service_types
 

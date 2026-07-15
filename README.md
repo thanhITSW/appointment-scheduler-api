@@ -1,6 +1,8 @@
 # Appointment Scheduler API
 
-Backend for dealership appointment booking: availability checks, technician/bay allocation, JWT staff APIs.
+Backend for dealership appointment booking: availability checks, technician/bay allocation **per dealership**, JWT staff APIs.
+
+**Challenge:** Scenario A — Unified Service Scheduler · **Service layer focus:** this backend (`mvn test`) · **Companion UI:** `appointment-scheduler-ui`
 
 **System design:** [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) · **API:** [docs/API.md](docs/API.md) · **Database:** [docs/DATABASE.md](docs/DATABASE.md)
 
@@ -23,8 +25,8 @@ Backend for dealership appointment booking: availability checks, technician/bay 
 ## Features
 
 - Staff login (`employeeId` + password) and token refresh
-- Public appointment booking and availability check
-- Automatic technician (skill-matched) + service bay allocation
+- Public appointment booking and availability check (creates `CONFIRMED` appointments)
+- Automatic technician (skill-matched) + service bay allocation **scoped to dealership**
 - Pessimistic locking to prevent double booking
 - Customer / vehicle registry
 - Private APIs for appointments, master data, and user admin (role-based)
@@ -114,7 +116,7 @@ appointment-scheduler-api/
     └── test/java/com/appointment/   # unit + API tests
 ```
 
-This repo is **backend-only**. A React frontend (if any) lives in a separate project and calls these REST APIs.
+This repository is **backend service layer**. A React advisor UI lives in `appointment-scheduler-ui` and calls these REST APIs.
 
 ---
 

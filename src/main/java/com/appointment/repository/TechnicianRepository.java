@@ -16,13 +16,13 @@ import java.util.Optional;
 @Repository
 public interface TechnicianRepository extends JpaRepository<Technician, Long> {
 
-    @EntityGraph(attributePaths = "skills")
-    List<Technician> findByStatusOrderByIdAsc(TechnicianStatus status);
+    @EntityGraph(attributePaths = {"skills", "dealership"})
+    List<Technician> findByStatusAndDealershipIdOrderByIdAsc(TechnicianStatus status, Long dealershipId);
 
-    @EntityGraph(attributePaths = "skills")
+    @EntityGraph(attributePaths = {"skills", "dealership"})
     List<Technician> findAllByOrderByIdAsc();
 
-    @EntityGraph(attributePaths = "skills")
+    @EntityGraph(attributePaths = {"skills", "dealership"})
     @Query("SELECT t FROM Technician t WHERE t.id = :id")
     Optional<Technician> findWithSkillsById(@Param("id") Long id);
 
@@ -31,6 +31,11 @@ public interface TechnicianRepository extends JpaRepository<Technician, Long> {
     boolean existsByEmployeeCodeAndIdNot(String employeeCode, Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT t FROM Technician t WHERE t.status = com.appointment.enumeration.TechnicianStatus.AVAILABLE ORDER BY t.id ASC")
-    List<Technician> findAvailableForUpdate();
+    @Query("""
+            SELECT t FROM Technician t
+            WHERE t.status = com.appointment.enumeration.TechnicianStatus.AVAILABLE
+              AND t.dealership.id = :dealershipId
+            ORDER BY t.id ASC
+            """)
+    List<Technician> findAvailableForUpdate(@Param("dealershipId") Long dealershipId);
 }

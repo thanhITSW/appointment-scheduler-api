@@ -110,7 +110,7 @@ class AppointmentPublicControllerTest {
                 .thenReturn(AppointmentResponseDto.builder()
                         .id(99L)
                         .customerId(1L)
-                        .status(AppointmentStatus.PENDING)
+                        .status(AppointmentStatus.CONFIRMED)
                         .appointmentDate(futureDate)
                         .startTime(LocalTime.of(10, 0))
                         .endTime(LocalTime.of(11, 0))
@@ -121,7 +121,7 @@ class AppointmentPublicControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(99))
-                .andExpect(jsonPath("$.status").value("PENDING"));
+                .andExpect(jsonPath("$.status").value("CONFIRMED"));
 
         verify(appointmentService).createAppointment(any(CreateAppointmentRequestDto.class));
     }

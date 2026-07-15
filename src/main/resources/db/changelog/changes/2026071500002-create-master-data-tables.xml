@@ -5,6 +5,26 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
+    <changeSet id="2026071500002-create-dealerships-table" author="thanhITSW">
+        <createTable tableName="dealerships">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp(6)"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp(6)"/>
+        </createTable>
+    </changeSet>
+
     <changeSet id="2026071500002-create-technicians-table" author="thanhITSW">
         <createTable tableName="technicians">
             <column name="id" type="BIGINT" autoIncrement="true">
@@ -19,6 +39,9 @@
             <column name="status" type="ENUM('AVAILABLE','OFF','BUSY')">
                 <constraints nullable="false"/>
             </column>
+            <column name="dealership_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="created_by" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
@@ -26,6 +49,16 @@
             <column name="last_modified_by" type="varchar(50)"/>
             <column name="last_modified_date" type="timestamp(6)"/>
         </createTable>
+        <addForeignKeyConstraint
+                baseTableName="technicians"
+                baseColumnNames="dealership_id"
+                referencedTableName="dealerships"
+                referencedColumnNames="id"
+                constraintName="fk_technicians_dealership"/>
+        <createIndex tableName="technicians" indexName="idx_technicians_dealership_status">
+            <column name="dealership_id"/>
+            <column name="status"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="2026071500002-create-service-bays-table" author="thanhITSW">
@@ -39,6 +72,9 @@
             <column name="status" type="ENUM('AVAILABLE','OFF','BUSY')">
                 <constraints nullable="false"/>
             </column>
+            <column name="dealership_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="created_by" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
@@ -46,6 +82,16 @@
             <column name="last_modified_by" type="varchar(50)"/>
             <column name="last_modified_date" type="timestamp(6)"/>
         </createTable>
+        <addForeignKeyConstraint
+                baseTableName="service_bays"
+                baseColumnNames="dealership_id"
+                referencedTableName="dealerships"
+                referencedColumnNames="id"
+                constraintName="fk_service_bays_dealership"/>
+        <createIndex tableName="service_bays" indexName="idx_service_bays_dealership_status">
+            <column name="dealership_id"/>
+            <column name="status"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="2026071500002-create-service-types-table" author="thanhITSW">
@@ -57,26 +103,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="duration_minutes" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="created_by" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="created_date" type="timestamp(6)"/>
-            <column name="last_modified_by" type="varchar(50)"/>
-            <column name="last_modified_date" type="timestamp(6)"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet id="2026071500002-create-dealerships-table" author="thanhITSW">
-        <createTable tableName="dealerships">
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="address" type="VARCHAR(500)">
                 <constraints nullable="false"/>
             </column>
             <column name="created_by" type="varchar(50)">

@@ -45,8 +45,9 @@ After Liquibase seed changeset `2026071500008-insert-seed-data`:
 | 4 | Dung Pham | 0901000004 | Focus `51D-44441` |
 | 5 | Em Hoang | 0901000005 | CX-5 `51E-55551` |
 
-Appointments: past COMPLETED/CANCELLED + upcoming PENDING/CONFIRMED (`CURDATE()+1..+3`).  
-Day `CURDATE()+5` left mostly free for live booking demos.
+Appointments: past COMPLETED/CANCELLED + upcoming **CONFIRMED** (`CURDATE()+1..+3`).  
+Day `CURDATE()+5` left mostly free for live booking demos.  
+Technicians 1–2 and bays 1–2 belong to dealership 1; technicians 3–4 and bays 3–4 to dealership 2.
 
 ---
 
@@ -270,7 +271,7 @@ Unread lock — UI preview only. Real allocation happens on create.
 
 ### Create appointment
 
-Frontend **does not** send `technicianId` / `serviceBayId`. Backend assigns under pessimistic lock.
+Frontend **does not** send `technicianId` / `serviceBayId`. Backend assigns an available, skill-matched technician and free bay **at the requested dealership** under pessimistic lock.
 
 #### POST `/api/v1/public/appointments`
 
@@ -305,7 +306,7 @@ Frontend **does not** send `technicianId` / `serviceBayId`. Backend assigns unde
   "appointmentDate": "2026-07-20",
   "startTime": "09:00:00",
   "endTime": "10:00:00",
-  "status": "PENDING"
+  "status": "CONFIRMED"
 }
 ```
 
@@ -402,6 +403,7 @@ Allowed transitions:
   "name": "David",
   "employeeCode": "TECH-001",
   "status": "AVAILABLE",
+  "dealershipId": 1,
   "skillIds": [1, 2]
 }
 ```
@@ -421,7 +423,7 @@ Allowed transitions:
 | PUT | `/{id}` |
 
 ```json
-{ "name": "Bay 1", "status": "AVAILABLE" }
+{ "name": "Bay 1", "status": "AVAILABLE", "dealershipId": 1 }
 ```
 
 ### Service types — `/api/v1/private/service-types`
