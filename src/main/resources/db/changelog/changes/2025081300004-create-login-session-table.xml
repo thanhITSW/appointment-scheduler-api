@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="2025081300004-create-login-session-table" author="thanhnmt">
+        <createTable tableName="login_session">
+            <column name="id" type="VARCHAR(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="ip_address" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="user_agent" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="location" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="active" type="TINYINT(1)" defaultValueBoolean="true">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fk_user_id" type="BIGINT">
+                <constraints nullable="true" foreignKeyName="fk_login_session_user"/>
+            </column>
+
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp(6)"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp(6)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="login_session" 
+                                baseColumnNames="fk_user_id" 
+                                constraintName="fk_login_session_user" 
+                                referencedTableName="user" 
+                                referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="2025081300004-1-add-new-column-session_id" author="truongpv">
+        <addColumn tableName="login_session">
+            <column name="session_id" type="VARCHAR(255)" >
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2025081300004-2-alter-login-session-id-to-bigint" author="truongpv">
+        <modifyDataType tableName="login_session" columnName="id" newDataType="BIGINT"/>
+        <addAutoIncrement tableName="login_session" columnName="id" columnDataType="BIGINT"/>
+    </changeSet>
+
+</databaseChangeLog>

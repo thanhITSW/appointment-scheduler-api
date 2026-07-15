@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="2025081300011-create-refresh-token-table" author="thanhnmt">
+        <createTable tableName="refresh_token">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="token_type" type="VARCHAR(50)" defaultValue="Bearer">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revoked" type="TINYINT(1)" defaultValueBoolean="false">
+                <constraints nullable="true"/>
+            </column>
+            <column name="revoked_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="revocation_reason" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="fk_user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_refresh_token_user"/>
+            </column>
+            <column name="fk_login_session_id" type="BIGINT">
+                <constraints nullable="true" foreignKeyName="fk_refresh_token_login_session"/>
+            </column>
+
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp(6)"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp(6)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="refresh_token" 
+                                baseColumnNames="fk_user_id" 
+                                constraintName="fk_refresh_token_user" 
+                                referencedTableName="user" 
+                                referencedColumnNames="id"/>
+        
+        <addForeignKeyConstraint baseTableName="refresh_token" 
+                                baseColumnNames="fk_login_session_id" 
+                                constraintName="fk_refresh_token_login_session" 
+                                referencedTableName="login_session" 
+                                referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>
