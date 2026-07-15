@@ -1,35 +1,29 @@
 # Database Changelog (Liquibase)
 
-Schema migrations for **appointment-api**.
-
-## Master changelog
+## Master
 
 [`db-changelog-master.xml`](db-changelog-master.xml)
 
-## Included changes
+## Schema
 
-### Auth
-- `2025081300012-create-user-table.xml` — users (roles: ADVISOR, TECHNICIAN, MANAGER, ADMIN)
+- `2025081300012-create-user-table.xml`
 - `2025081300004-create-login-session-table.xml`
 - `2025081300011-create-refresh-token-table.xml`
 - `2025091210000-create-password-history.xml`
-- `2026071500000-insert-auth-users.sql` — seed staff users (dev)
-
-### Appointment domain
 - `2026071500001-create-customers-vehicles-tables.xml`
-- `2026071500002-create-master-data-tables.xml` — technicians, service_bays, service_types, dealerships
+- `2026071500002-create-master-data-tables.xml`
 - `2026071500003-create-appointments-table.xml`
-- `2026071500004-insert-appointment-master-data.sql`
 - `2026071500005-create-skills-tables.xml`
-- `2026071500006-insert-skills-seed.sql`
 
-## Sample users (dev context)
+## Seed
 
-Password for all: `Admin@123`
+One Liquibase handler loads many SQL files:
 
-| employeeId | Role |
-|---|---|
-| admin01 | ADMIN |
-| mgr01 | MANAGER |
-| adv01 | ADVISOR |
-| tech01 | TECHNICIAN |
+- Handler: [`2026071500008-insert-seed-data.xml`](changes/2026071500008-insert-seed-data.xml)
+- SQL:
+  - [`seed/01-auth-users.sql`](changes/seed/01-auth-users.sql)
+  - [`seed/02-master-data.sql`](changes/seed/02-master-data.sql)
+  - [`seed/03-skills.sql`](changes/seed/03-skills.sql)
+  - [`seed/04-demo-data.sql`](changes/seed/04-demo-data.sql)
+
+Staff password: `Admin@123` (`admin01`, `mgr01`, `adv01`, `tech01`)

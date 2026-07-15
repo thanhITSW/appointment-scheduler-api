@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="2025081300011-create-refresh-token-table" author="thanhnmt">
+    <changeSet id="2025081300011-create-refresh-token-table" author="thanhITSW">
         <createTable tableName="refresh_token">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>

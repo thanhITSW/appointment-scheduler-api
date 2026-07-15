@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="2025081300004-create-login-session-table" author="thanhnmt">
+    <changeSet id="2025081300004-create-login-session-table" author="thanhITSW">
         <createTable tableName="login_session">
             <column name="id" type="VARCHAR(255)">
                 <constraints primaryKey="true" nullable="false"/>
@@ -44,7 +44,7 @@
                                 referencedColumnNames="id"/>
     </changeSet>
 
-    <changeSet id="2025081300004-1-add-new-column-session_id" author="truongpv">
+    <changeSet id="2025081300004-1-add-new-column-session_id" author="thanhITSW">
         <addColumn tableName="login_session">
             <column name="session_id" type="VARCHAR(255)" >
                 <constraints nullable="false"/>
@@ -52,7 +52,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="2025081300004-2-alter-login-session-id-to-bigint" author="truongpv">
+    <changeSet id="2025081300004-2-alter-login-session-id-to-bigint" author="thanhITSW">
         <modifyDataType tableName="login_session" columnName="id" newDataType="BIGINT"/>
         <addAutoIncrement tableName="login_session" columnName="id" columnDataType="BIGINT"/>
     </changeSet>

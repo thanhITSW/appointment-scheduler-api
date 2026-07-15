@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="2026071500002-create-technicians-table" author="system">
+    <changeSet id="2026071500002-create-technicians-table" author="thanhITSW">
         <createTable tableName="technicians">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -28,7 +28,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="2026071500002-create-service-bays-table" author="system">
+    <changeSet id="2026071500002-create-service-bays-table" author="thanhITSW">
         <createTable tableName="service_bays">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -48,7 +48,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="2026071500002-create-service-types-table" author="system">
+    <changeSet id="2026071500002-create-service-types-table" author="thanhITSW">
         <createTable tableName="service_types">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -68,7 +68,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="2026071500002-create-dealerships-table" author="system">
+    <changeSet id="2026071500002-create-dealerships-table" author="thanhITSW">
         <createTable tableName="dealerships">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>

@@ -1,4 +1,4 @@
--- Seed master data for appointment domain
+-- Dealerships, service types, technicians, service bays
 INSERT INTO dealerships (id, name, address, created_by, created_date, last_modified_by, last_modified_date)
 VALUES (1, 'Downtown Service Center', '100 Main Street, Metro City', 'SYSTEM', NOW(), 'SYSTEM', NOW());
 

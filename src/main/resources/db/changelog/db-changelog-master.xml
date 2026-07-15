@@ -5,24 +5,17 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- Auth tables -->
+    <!-- Schema -->
     <include file="db/changelog/changes/2025081300012-create-user-table.xml"/>
     <include file="db/changelog/changes/2025081300004-create-login-session-table.xml"/>
     <include file="db/changelog/changes/2025081300011-create-refresh-token-table.xml"/>
     <include file="db/changelog/changes/2025091210000-create-password-history.xml"/>
-
-    <!-- Auth seed -->
-    <include file="db/changelog/changes/2026071500000-insert-auth-users.sql.xml"/>
-
-    <!-- Appointment domain -->
     <include file="db/changelog/changes/2026071500001-create-customers-vehicles-tables.xml"/>
     <include file="db/changelog/changes/2026071500002-create-master-data-tables.xml"/>
     <include file="db/changelog/changes/2026071500003-create-appointments-table.xml"/>
-    <include file="db/changelog/changes/2026071500004-insert-appointment-master-data.sql.xml"/>
-
-    <!-- Skills -->
     <include file="db/changelog/changes/2026071500005-create-skills-tables.xml"/>
-    <include file="db/changelog/changes/2026071500006-insert-skills-seed.sql.xml"/>
+
+    <!-- All seed data (users, master, skills, customers, vehicles, appointments) -->
+    <include file="db/changelog/changes/2026071500008-insert-seed-data.xml"/>
 
 </databaseChangeLog>
-

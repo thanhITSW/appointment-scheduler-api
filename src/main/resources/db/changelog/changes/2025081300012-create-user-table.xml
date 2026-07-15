@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="2025081300012-create-user-table" author="thanhnmt">
+    <changeSet id="2025081300012-create-user-table" author="thanhITSW">
         <createTable tableName="user">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -46,33 +46,33 @@
             <column name="last_modified_date" type="timestamp(6)"/>
         </createTable>
     </changeSet>
-    <changeSet id="2025081300012-1-drop-column" author="truongpv">
+    <changeSet id="2025081300012-1-drop-column" author="thanhITSW">
         <dropColumn tableName="user">
             <column name="first_name"></column>
             <column name="last_name"></column>
         </dropColumn>
     </changeSet>
-    <changeSet id="2025081300012-2-add-column-note" author="truongpv">
+    <changeSet id="2025081300012-2-add-column-note" author="thanhITSW">
         <addColumn tableName="user">
             <column name="note" type="text">
                 <constraints nullable="true" />
             </column>
         </addColumn>
     </changeSet>
-    <changeSet id="2025081300012-3-add-column-full_name" author="truongpv">
+    <changeSet id="2025081300012-3-add-column-full_name" author="thanhITSW">
         <addColumn tableName="user">
             <column name="full_name" type="text">
                 <constraints nullable="true" />
             </column>
         </addColumn>
     </changeSet>
-    <changeSet id="2025081300012-4-drop-column-is_active" author="truongpv">
+    <changeSet id="2025081300012-4-drop-column-is_active" author="thanhITSW">
         <dropColumn tableName="user">
             <column name="is_active"></column>
         </dropColumn>
     </changeSet>
 
-    <changeSet id="2025081300012-5-" author="system">
+    <changeSet id="2025081300012-5-" author="thanhITSW">
         <comment>Add password change tracking fields to user table</comment>
         <addColumn tableName="user">
             <column name="address" type="TEXT">
@@ -108,12 +108,12 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="202509301200-drop-unique-email" author="truongpv">
+    <changeSet id="202509301200-drop-unique-email" author="thanhITSW">
     <dropUniqueConstraint
             constraintName="email"
             tableName="user"/>
     </changeSet>
-    <changeSet id="202509301200-drop-null-constraints-email" author="truongpv">
+    <changeSet id="202509301200-drop-null-constraints-email" author="thanhITSW">
         <dropNotNullConstraint
                 tableName="user"
         columnName="email" columnDataType="VARCHAR(255)"/>

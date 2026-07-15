@@ -1,5 +1,4 @@
--- Seed staff users for appointment-api (dev context)
--- Password for all accounts: Admin@123
+-- Staff users (password: Admin@123)
 INSERT INTO user (id, email, employee_id, password, role, status, is_deleted, is_blocked, created_by, created_date, last_modified_by, last_modified_date, note, full_name, two_fa_enabled)
 VALUES (1, 'admin@appointment.com', 'admin01', '$2a$10$RLZUF8nlxoNt7HLKw1MmZ.sNpx2Uz7h9FYON1PuqkTda4lHteXn1e', 'ADMIN', 'ACTIVATED', 0, 0, 'SYSTEM', NOW(), 'SYSTEM', NOW(), null, 'Admin User', 0);
 
