@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="2025081300012-create-user-table" author="thanhITSW">
+        <createTable tableName="user">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_active" type="TINYINT(1)" defaultValueBoolean="true">
+                <constraints nullable="true"/>
+            </column>
+            <column name="role" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_deleted" type="TINYINT(1)" defaultValueBoolean="false">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_blocked" type="TINYINT(1)" defaultValueBoolean="false">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp(6)"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp(6)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2025081300012-1-drop-column" author="thanhITSW">
+        <dropColumn tableName="user">
+            <column name="first_name"></column>
+            <column name="last_name"></column>
+        </dropColumn>
+    </changeSet>
+    <changeSet id="2025081300012-2-add-column-note" author="thanhITSW">
+        <addColumn tableName="user">
+            <column name="note" type="text">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="2025081300012-3-add-column-full_name" author="thanhITSW">
+        <addColumn tableName="user">
+            <column name="full_name" type="text">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="2025081300012-4-drop-column-is_active" author="thanhITSW">
+        <dropColumn tableName="user">
+            <column name="is_active"></column>
+        </dropColumn>
+    </changeSet>
+
+    <changeSet id="2025081300012-5-" author="thanhITSW">
+        <comment>Add password change tracking fields to user table</comment>
+        <addColumn tableName="user">
+            <column name="address" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date_of_birth" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="phone_number" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="password_changed_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="password_expires_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="failed_login_attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_failed_login_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="account_locked_until" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="employee_id" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="two_fa_enabled" type="TINYINT(1)" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="202509301200-drop-unique-email" author="thanhITSW">
+    <dropUniqueConstraint
+            constraintName="email"
+            tableName="user"/>
+    </changeSet>
+    <changeSet id="202509301200-drop-null-constraints-email" author="thanhITSW">
+        <dropNotNullConstraint
+                tableName="user"
+        columnName="email" columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+
+</databaseChangeLog>
